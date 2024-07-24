@@ -3,7 +3,14 @@
   "builds": [
     {
       "src": "api/generate-images.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["api/**"] }
     }
-  ]
+  ],
+  "routes": [
+    {
+        "src": "/(.*)",
+        "dest": "api/generate-images.js"
+    }
+]
 }
