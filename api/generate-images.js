@@ -13,7 +13,7 @@ app.use(express.json());
 
 // test endpoint
 app.get("/", (req, res) => {
-  res.send("Hello world");
+  res.send("Welcome to AI Image Generator");
 });
 
 app.post("/generate-images", async (req, res) => {
