@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/generate-images.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "env": {
+    "API_KEY": "@api_key"
+  }
+}
