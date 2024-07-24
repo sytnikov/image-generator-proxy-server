@@ -11,6 +11,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// test endpoint
+app.get("/", (req, res) => {
+  res.send("Hello world");
+});
+
 app.post("/generate-images", async (req, res) => {
   const { prompt } = req.body;
   console.log("prompt:", prompt);
