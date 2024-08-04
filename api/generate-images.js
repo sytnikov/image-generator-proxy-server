@@ -9,7 +9,10 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 const corsOptions = {
-  origin: ['chrome-extension://mogkblnojamgejdhgffbelpikocalapb', 'chrome-extension://cabgmgcmnkeopfenfjmpgbalmgchajij'],
+  origin: [
+    'chrome-extension://mogkblnojamgejdhgffbelpikocalapb',
+    'chrome-extension://cabgmgcmnkeopfenfjmpgbalmgchajij',
+  ],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],
 }
