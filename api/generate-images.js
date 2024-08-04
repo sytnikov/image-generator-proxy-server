@@ -62,10 +62,6 @@ app.post('/weather-forecast', async (req, res) => {
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=Helsinki&units=metric&appid=${process.env.OPEN_WEATHER_API_KEY}`
     )
-    console.log('response:', response)
-    if (!response.ok) {
-      throw new Error('Response is not ok!')
-    }
     const data = await response.json()
     res.send(data)
   } catch (error) {
