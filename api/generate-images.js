@@ -62,7 +62,7 @@ app.post('/generate-images', async (req, res) => {
 
 app.post('/weather-forecast', async (req, res) => {
   const { city } = req.body
-  
+
   try {
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${process.env.OPEN_WEATHER_API_KEY}`
@@ -71,6 +71,47 @@ app.post('/weather-forecast', async (req, res) => {
     res.send(data)
   } catch (error) {
     res.status(500).send('Failed to fetch weather forecast')
+  }
+})
+
+app.post('/stability-model', async (req, res) => {
+  const { prompt } = req.body
+
+  try {
+    const response = await fetch(
+      `https://api.stability.ai/v1/generation/stable-diffusion-v1-6/text-to-image`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${process.env.STABILITY_API_KEY}`,
+        },
+        body: JSON.stringify({
+          text_prompts: [
+            {
+              text: prompt,
+            },
+          ],
+          cfg_scale: 7,
+          height: 1024,
+          width: 1024,
+          steps: 30,
+          samples: 1,
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error(`Non-200 response: ${await response.text()}`)
+    }
+
+    const responseJSON = await response.json()
+
+    res.send(responseJSON.artifacts)
+  } catch (error) {
+    res.status(500).send('Failed to fetch images')
+    console.log('👀 Error while fetching: ', error)
   }
 })
 
