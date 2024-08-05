@@ -61,9 +61,11 @@ app.post('/generate-images', async (req, res) => {
 })
 
 app.post('/weather-forecast', async (req, res) => {
+  const { city } = req.body
+  
   try {
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=Helsinki&units=metric&appid=${process.env.OPEN_WEATHER_API_KEY}`
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${process.env.OPEN_WEATHER_API_KEY}`
     )
     const data = await response.json()
     res.send(data)
