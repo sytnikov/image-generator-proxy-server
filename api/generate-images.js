@@ -110,9 +110,10 @@ app.post('/stability-model', async (req, res) => {
       throw new Error(`Non-200 response: ${await response.text()}`)
     }
 
-    const responseJSON = await response.json()
+    const data = await response.json()
+    console.log('data:', data)
 
-    res.send(responseJSON.artifacts)
+    res.send(data)
   } catch (error) {
     res.status(500).send('Failed to fetch images')
     console.log('👀 Error while fetching: ', error)
