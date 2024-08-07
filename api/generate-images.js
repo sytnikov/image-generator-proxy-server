@@ -8,20 +8,21 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 5000
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (origin && origin.startsWith('chrome-extension://')) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  allowedHeaders: 'Content-Type,Authorization',
-  credentials: true,
-}
+// const corsOptions = {
+//   origin: (origin, callback) => {
+//     if (origin && origin.startsWith('chrome-extension://')) {
+//       callback(null, true)
+//     } else {
+//       callback(new Error('Not allowed by CORS'))
+//     }
+//   },
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   allowedHeaders: 'Content-Type,Authorization',
+//   credentials: true,
+// }
 
-app.use(cors(corsOptions))
+// app.use(cors(corsOptions))
+app.use(cors())
 app.use(express.json())
 
 // test endpoint
@@ -79,7 +80,7 @@ app.post('/weather-forecast', async (req, res) => {
 })
 
 app.post('/stability-model', async (req, res) => {
-  const { prompt } = req.body
+  const { prompt, width, height } = req.body
 
   try {
     const response = await fetch(
@@ -98,8 +99,8 @@ app.post('/stability-model', async (req, res) => {
             },
           ],
           cfg_scale: 7,
-          height: 1024,
-          width: 1024,
+          height: height,
+          width: width,
           steps: 30,
           samples: 1,
         }),
