@@ -117,7 +117,7 @@ app.post('/stability-model', async (req, res) => {
     res.send(data)
   } catch (error) {
     res.status(500).send('Failed to fetch images')
-    console.log('👀 Error while fetching: ', error)
+    console.log('👀 Error while fetching the data: ', error)
   }
 })
 
