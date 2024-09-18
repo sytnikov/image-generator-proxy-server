@@ -2,6 +2,7 @@ import express from 'express'
 import axios from 'axios'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import sharp from 'sharp'
 
 dotenv.config()
 
@@ -101,6 +102,8 @@ app.post('/stability-model', async (req, res) => {
           cfg_scale: 7,
           height: height,
           width: width,
+          // height: 640,
+          // width: 640,
           steps: 30,
           samples: 1,
         }),
@@ -111,13 +114,30 @@ app.post('/stability-model', async (req, res) => {
       throw new Error(`Non-200 response: ${await response.text()}`)
     }
 
-    const data = await response.json()
-    console.log('data:', data)
+    const data = await response.json();
+    const imageBuffer = Buffer.from(data.artifacts[0].base64, 'base64');
 
-    res.send(data)
+    // Compress the image
+    const compressedImageBuffer = await sharp(imageBuffer)
+      .jpeg({ quality: 70 })
+      .toBuffer();
+
+    // Convert compressed image back to base64
+    const base64CompressedImage = compressedImageBuffer.toString('base64');
+
+    // Send response in JSON format with compressed base64 image
+    res.json({
+      artifacts: [
+        {
+          base64: base64CompressedImage,
+          seed: data.artifacts[0].seed,
+          finishReason: data.artifacts[0].finishReason,
+        },
+      ],
+    });
   } catch (error) {
     res.status(500).send('Failed to fetch images')
-    console.log('👀 Error while fetching: ', error)
+    console.log('👀 Error while fetching the data: ', error)
   }
 })
 
