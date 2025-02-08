@@ -1,8 +1,9 @@
 import express from 'express'
-import axios from 'axios'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import sharp from 'sharp'
+
+import { styles } from './styles.js'
 
 dotenv.config()
 
@@ -31,57 +32,64 @@ app.get('/', (req, res) => {
   res.send('Welcome to AI Image Generator')
 })
 
-app.post('/generate-images', async (req, res) => {
-  const { prompt } = req.body
+// app.post('/generate-images', async (req, res) => {
+//   const { prompt } = req.body
 
-  try {
-    const response = await axios.post(
-      'https://api-inference.huggingface.co/models/prompthero/openjourney-v4',
-      { inputs: prompt },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.SECRET_API_KEY}`,
-        },
-        responseType: 'arraybuffer', // Specify the response type as arraybuffer for binary data
-      }
-    )
+//   try {
+//     const response = await axios.post(
+//       'https://api-inference.huggingface.co/models/prompthero/openjourney-v4',
+//       { inputs: prompt },
+//       {
+//         headers: {
+//           'Content-Type': 'application/json',
+//           Authorization: `Bearer ${process.env.SECRET_API_KEY}`,
+//         },
+//         responseType: 'arraybuffer', // Specify the response type as arraybuffer for binary data
+//       }
+//     )
 
-    // Get content type from response headers
-    const contentType = response.headers['content-type']
+//     // Get content type from response headers
+//     const contentType = response.headers['content-type']
 
-    // Ensure content type is defined before setting the header
-    if (contentType) {
-      res.setHeader('Content-Type', contentType)
-    } else {
-      res.setHeader('Content-Type', 'application/octet-stream') // Fallback to a default content type
-    }
+//     // Ensure content type is defined before setting the header
+//     if (contentType) {
+//       res.setHeader('Content-Type', contentType)
+//     } else {
+//       res.setHeader('Content-Type', 'application/octet-stream') // Fallback to a default content type
+//     }
 
-    // Get the response body as a buffer (for binary data)
-    const buffer = response.data
+//     // Get the response body as a buffer (for binary data)
+//     const buffer = response.data
 
-    res.send(Buffer.from(buffer))
-  } catch (error) {
-    res.status(500).send('Failed to generate images')
-  }
-})
+//     res.send(Buffer.from(buffer))
+//   } catch (error) {
+//     res.status(500).send('Failed to generate images')
+//   }
+// })
 
-app.post('/weather-forecast', async (req, res) => {
-  const { city, tempScale } = req.body
+// app.post('/weather-forecast', async (req, res) => {
+//   const { city, tempScale } = req.body
 
-  try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${tempScale}&appid=${process.env.OPEN_WEATHER_API_KEY}`
-    )
-    const data = await response.json()
-    res.send(data)
-  } catch (error) {
-    res.status(500).send('Failed to fetch weather forecast')
-  }
-})
+//   try {
+//     const response = await fetch(
+//       `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${tempScale}&appid=${process.env.OPEN_WEATHER_API_KEY}`
+//     )
+//     const data = await response.json()
+//     res.send(data)
+//   } catch (error) {
+//     res.status(500).send('Failed to fetch weather forecast')
+//   }
+// })
 
 app.post('/stability-model', async (req, res) => {
-  const { prompt, width, height } = req.body
+  const { prompt, width, height, user, style } = req.body
+
+  const styleData = styles[style] || { positive: ' ', negative: ' '}
+  const { positive, negative } = styleData
+
+  console.log(`👀 Using style: ${style}`);
+  console.log(`✅ Positive Prompt: ${positive}`);
+  console.log(`❌ Negative Prompt: ${negative}`);
 
   try {
     const response = await fetch(
@@ -97,13 +105,20 @@ app.post('/stability-model', async (req, res) => {
           text_prompts: [
             {
               text: prompt,
+              weight: 1.0,
+            },
+            {
+              text: positive,
+              weight: 2.0,
+            },
+            {
+              text: negative,
+              weight: -2.0,
             },
           ],
           cfg_scale: 7,
           height: height,
           width: width,
-          // height: 640,
-          // width: 640,
           steps: 30,
           samples: 1,
         }),
@@ -124,6 +139,8 @@ app.post('/stability-model', async (req, res) => {
 
     // Convert compressed image back to base64
     const base64CompressedImage = compressedImageBuffer.toString('base64');
+    console.log('👀 Successful server request')
+    console.log('👀 Implemented by', user)
 
     // Send response in JSON format with compressed base64 image
     res.json({
@@ -135,6 +152,9 @@ app.post('/stability-model', async (req, res) => {
         },
       ],
     });
+    // for response as an image
+    // res.setHeader('Content-Type', 'image/jpeg');
+    // res.send(compressedImageBuffer);
   } catch (error) {
     res.status(500).send('Failed to fetch images')
     console.log('👀 Error while fetching the data: ', error)
